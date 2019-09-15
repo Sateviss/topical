@@ -30,5 +30,10 @@ namespace topical
                 await context.Response.WriteAsync("Hello World!");
             });
         }
+
+        public int Test()
+        {
+            return 2;
+        }
     }
 }
