@@ -15,6 +15,11 @@ jobs:
         dotnet-version: 3.0.100-preview9-014004
     - name: Build with dotnet
       run: dotnet build Application --configuration Release
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: build
+        path: Application/bin/Release
       
   test:
     runs-on: ubuntu-latest
@@ -25,5 +30,9 @@ jobs:
       with:
         dotnet-version: 3.0.100-preview9-014004
     - name: Test with dotnet
-      run: dotnet test Tests
-
+      run: dotnet test Tests --logger "junit;LogFilePath=results.xml"
+    - name: Upload test results
+      uses: actions/upload-artifact@v1
+      with:
+        name: report
+        path: Tests/results.xml

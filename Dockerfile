@@ -13,15 +13,16 @@ WORKDIR /app/Application
 RUN dotnet publish -c Release -o out
 
 
-# test application -- see: dotnet-docker-unit-testing.md
-FROM build AS testrunner
-WORKDIR /app/tests
-COPY Tests/. .
-ENTRYPOINT ["dotnet", "test", "--logger:trx"]
+# # test application -- see: dotnet-docker-unit-testing.md
+# FROM build AS testrunner
+# WORKDIR /app/tests
+# COPY Tests/. .
+# ENTRYPOINT ["dotnet", "test", "--logger:trx"]
 
 
 FROM mcr.microsoft.com/dotnet/core/runtime:2.1-alpine AS runtime
 WORKDIR /app
 COPY --from=build /app/Application/out ./
+EXPOSE 5000
 ENTRYPOINT ["dotnet", "Application.dll"]
 
