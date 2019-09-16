@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:2.1-alpine AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview9-alpine AS build
 WORKDIR /app
 
 # copy csproj and restore as distinct layers
@@ -20,9 +20,12 @@ RUN dotnet publish -c Release -o out
 # ENTRYPOINT ["dotnet", "test", "--logger:trx"]
 
 
-FROM mcr.microsoft.com/dotnet/core/runtime:2.1-alpine AS runtime
-WORKDIR /app
+# FROM mcr.microsoft.com/dotnet/core/runtime:3.0-buster-slim AS runtime
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview9-alpine AS runtime
+WORKDIR /runtime
 COPY --from=build /app/Application/out ./
-EXPOSE 5000
+# COPY /app/Application/out/ ./
+
+EXPOSE 80
 ENTRYPOINT ["dotnet", "Application.dll"]
 
