@@ -1,0 +1,38 @@
+name: ASP.NET Core CI
+
+on: [push]
+
+jobs:
+  build:
+    name: Build 
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.0.100-preview9-014004
+    - name: Build with dotnet
+      run: dotnet build Application --configuration Release
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: build
+        path: Application/bin
+  test:
+    name: Test
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.0.100-preview9-014004
+    - name: Test with dotnet
+      run: dotnet test Tests --logger "junit;LogFilePath=results.xml"
+    - name: Upload test results
+      uses: actions/upload-artifact@v1
+      with:
+        name: report
+        path: Tests/results.xml

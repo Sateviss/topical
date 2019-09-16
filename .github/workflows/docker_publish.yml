@@ -1,0 +1,28 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - release-*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Login to DockerHub
+      run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+      env:
+        DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Build the Docker image
+      run: > 
+        docker build . 
+        --file Dockerfile
+        --tag sateviss/topical:ci$(date +%y%m%d)
+        --tag sateviss/topical:latest
+    - name: Push the Docker image
+      run: docker push sateviss/topical
+    - name: Logout from Docker
+      run: docker logout
+

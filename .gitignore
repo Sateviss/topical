@@ -1,2 +1,5 @@
-obj/
-bin/
+**/obj/
+**/bin/
+**/out/
+**/.idea/
+**/TestResults/
