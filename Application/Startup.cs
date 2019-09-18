@@ -32,7 +32,7 @@ namespace Application
             {
                 endpoints.MapGet("/", async context =>
                 {
-                    await context.Response.WriteAsync("Hello World!");
+                    await context.Response.WriteAsync("Hello World! This is running with a watchtower");
                 });
             });
         }
