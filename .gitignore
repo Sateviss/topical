@@ -3,3 +3,6 @@
 **/out/
 **/.idea/
 **/TestResults/
+**/.vscode/
+/.vscode/
+/Topical.sln.DotSettings.user

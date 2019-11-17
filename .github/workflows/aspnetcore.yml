@@ -11,7 +11,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.0.100-preview9-014004
+        dotnet-version: 3.0.100
     - name: Build with dotnet
       run: dotnet build Application --configuration Release
     - name: Upload build artifacts
@@ -28,7 +28,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.0.100-preview9-014004
+        dotnet-version: 3.0.100
     - name: Test with dotnet
       run: dotnet test Tests --logger "junit;LogFilePath=results.xml"
     - name: Upload test results
