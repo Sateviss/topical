@@ -1,0 +1,67 @@
+﻿@using Application.Data
+@inject SessionStorageService StorageService
+@inject ChatService ChatService
+@implements IDisposable
+
+<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">Topical</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </li>
+    </ul>
+    @foreach (var (chatName, chatId) in Chats)
+    {
+        <ul class="nav flex-column">
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="@("/chat/" + chatId)" Match="NavLinkMatch.Prefix">
+                    <span class="oi oi-chat" aria-hidden="true"></span> @chatName
+                </NavLink>
+            </li>
+        </ul>
+    }
+
+</div>
+
+@code {
+
+    protected override async Task OnInitializedAsync() => AddCallback();
+    public void Dispose() => ((IList<Action>) StorageService.Storage["ChatCallbacks"]).Remove(callback);
+    private Action callback;
+
+    void AddCallback()
+    {
+        if (!StorageService.Storage.ContainsKey("ChatCallbacks"))
+            StorageService.Storage.Add("ChatCallbacks", new List<Action>());
+        Action Callback = StateHasChanged;
+        callback = Callback;
+        ((IList<Action>)StorageService.Storage["ChatCallbacks"]).Add(callback);
+    }
+
+    IList<(string, Guid)> Chats
+    {
+        get
+        {
+            if (!StorageService.Storage.ContainsKey("User"))
+                return new List<(string, Guid)>();
+            return ChatService.RequestChats(null);
+        }
+    }
+
+    bool collapseNavMenu = true;
+
+    string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

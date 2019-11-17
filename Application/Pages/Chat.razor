@@ -1,0 +1,72 @@
+@page "/chat/{Id:guid}"
+@using Application.Data
+@using Microsoft.AspNetCore.Components
+@inject SessionStorageService StorageService
+@inject ChatService ChatService
+@implements IDisposable
+
+<h1>Welcome to chat <b>@ChatService.GetChat(Id).Title</b></h1>
+
+@foreach (var message in ChatObject.Messages)
+{
+    <div class="card m-2">
+        <div class="card-body p-2">
+            @if (message.sender.Code != "")
+            {
+                <p class="card-title"><b>@message.sender.Name</b><i>#@message.sender.Code</i></p>
+            }
+            else
+            {
+                <p class="card-title"><b>@message.sender.Name</b></p>
+            }
+            <p class="card-text">@message.message</p>
+            <p class="card-text"><small class="text-muted">@message.createdOn.ToString()</small></p>
+        </div>
+    </div>
+}
+
+<div class="d-flex bd-highlight">
+    <textarea class="form-control p-2 flex-grow bd-highlight" id="messageArea" rows="2" @bind="Message"></textarea>
+    <button class="btn btn-primary flex-shrink-1 bd-highlight" @onclick="SendMessage">
+        <span class="oi oi-arrow-right" aria-hidden="true"></span>
+    </button>
+</div>
+
+@code {
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private Data.Chat _chat;
+    public Data.Chat ChatObject => _chat ??= ChatService.GetChat(Id);
+    public string Message;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        ChatObject.NewMessage += HandleNewMessage;
+    }
+
+    public void Dispose()
+    {
+        ChatObject.NewMessage -= HandleNewMessage;
+    }
+
+    public void HandleNewMessage(object sender, EventArgs eventArgs)
+    {
+        this.InvokeAsync(() =>
+        {
+            StateHasChanged();
+            Console.WriteLine("New message :"+_chat.Messages.Last().message);
+        }).Wait();
+    }
+
+
+    void SendMessage()
+    {
+        if (Message != "")
+        {
+            ChatObject.AddMessage(new Message(Message, (User)StorageService.Storage["User"]));
+        }
+    }
+
+}
