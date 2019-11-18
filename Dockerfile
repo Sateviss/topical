@@ -21,7 +21,7 @@ RUN dotnet publish -c Release -o out
 
 
 # FROM mcr.microsoft.com/dotnet/core/runtime:3.0-buster-slim AS runtime
-FROM mcr.microsoft.com/dotnet/core/sdk:3.0-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.0-alpine AS runtime
 WORKDIR /runtime
 COPY --from=build /app/Application/out ./
 # COPY /app/Application/out/ ./

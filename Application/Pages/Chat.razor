@@ -4,34 +4,44 @@
 @inject SessionStorageService StorageService
 @inject ChatService ChatService
 @implements IDisposable
+@inject IJSRuntime JsRuntime
 
-<h1>Welcome to chat <b>@ChatService.GetChat(Id).Title</b></h1>
-
-@foreach (var message in ChatObject.Messages)
-{
-    <div class="card m-2">
-        <div class="card-body p-2">
-            @if (message.sender.Code != "")
-            {
-                <p class="card-title"><b>@message.sender.Name</b><i>#@message.sender.Code</i></p>
-            }
-            else
-            {
-                <p class="card-title"><b>@message.sender.Name</b></p>
-            }
-            <p class="card-text">@message.message</p>
-            <p class="card-text"><small class="text-muted">@message.createdOn.ToString()</small></p>
+<h1>Welcome to <b>@ChatService.GetChat(Id).Title</b></h1>
+<div class="d-flex flex-column bd-highlight mb-3" style="height: calc(100vh - 150px);">
+    <div class="p-2 flex-grow-1 bd-highlight overflow-auto" id="scroller">
+        @foreach (var message in ChatObject.Messages)
+        {
+            <div>
+                <div class="d-flex bd-highlight">
+                    <div class="p-1 m-0 bd-highlight flex-column text-right">
+                        @if (message.sender.Code != "") {
+                            <b>@message.sender.Name</b><i class="text-muted small">#@message.sender.Code:</i>
+                        } else {
+                            <b>@message.sender.Name:</b>
+                        }
+                        <p class="m-0"><small class="text-muted">@message.createdOn.ToString()</small></p>
+                    </div>
+                    <div class="p-1 flex-grow-1 bd-highlight flex-column">
+                        @foreach (var line in message.message.Split("\n"))
+                        {
+                            <p class="m-0">@line</p>
+                        }
+                    </div>    
+                </div>
+                <hr class="m-1"/>
+            </div>
+        }
+        <div id="anchor"></div>
+    </div>
+    <div class="p-2 bd-highlight">
+        <div class="d-flex bd-highlight">
+                <textarea class="form-control p-2 flex-grow bd-highlight" id="messageArea" rows="3" @bind="Message"></textarea>
+                <button class="btn btn-primary flex-shrink-1 bd-highlight" id="sendmessage" @onclick="SendMessage">
+                    <span class="oi oi-arrow-right" aria-hidden="true"></span>
+                </button>
         </div>
     </div>
-}
-
-<div class="d-flex bd-highlight">
-    <textarea class="form-control p-2 flex-grow bd-highlight" id="messageArea" rows="2" @bind="Message"></textarea>
-    <button class="btn btn-primary flex-shrink-1 bd-highlight" @onclick="SendMessage">
-        <span class="oi oi-arrow-right" aria-hidden="true"></span>
-    </button>
 </div>
-
 @code {
 
     [Parameter]
@@ -45,27 +55,30 @@
     {
         ChatObject.NewMessage += HandleNewMessage;
     }
-
+    
+    protected override void OnAfterRender(bool firstRender)
+    {
+        JsRuntime.InvokeVoidAsync("scrollIntoView");
+    }
+    
     public void Dispose()
     {
         ChatObject.NewMessage -= HandleNewMessage;
     }
 
-    public void HandleNewMessage(object sender, EventArgs eventArgs)
+    private void HandleNewMessage(object sender, EventArgs eventArgs)
     {
-        this.InvokeAsync(() =>
-        {
-            StateHasChanged();
-            Console.WriteLine("New message :"+_chat.Messages.Last().message);
-        }).Wait();
+        InvokeAsync(StateHasChanged).Wait();
     }
 
 
     void SendMessage()
     {
+        StateHasChanged();
         if (Message != "")
         {
             ChatObject.AddMessage(new Message(Message, (User)StorageService.Storage["User"]));
+            Message = "";
         }
     }
 
