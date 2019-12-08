@@ -52,7 +52,7 @@
         {
             if (!StorageService.Storage.ContainsKey("User"))
                 return new List<(string, Guid)>();
-            return ChatService.RequestChats(null);
+            return ChatService.RequestChats(new List<string>());
         }
     }
 
