@@ -13,7 +13,7 @@ namespace Application.Data
         public string Code { get; }
         
         public IList<Guid> Chats { get; }
-
+        
         public User(string name, string password)
         {
             Name = (name == null || name != "") ? name : NameGenerator.NewUserName();
