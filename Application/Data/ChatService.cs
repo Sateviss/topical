@@ -73,6 +73,8 @@ namespace Application.Data
                     _userChats[second.Id].Add(chat);
                     chat.Users.Add(user);
                     chat.Users.Add(second);
+                    user.Updated();
+                    second.Updated();
                     break;   
                 }
             }

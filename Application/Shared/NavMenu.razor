@@ -39,11 +39,23 @@
     public void Dispose() => ((IList<Action>) StorageService.Storage["ChatCallbacks"]).Remove(callback);
     private Action callback;
 
+    void Sync()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    void LinkUser()
+    {
+        User user = (User) StorageService.Storage["User"];
+        user.Notify += Sync;
+        Sync();
+    }
+    
     void AddCallback()
     {
         if (!StorageService.Storage.ContainsKey("ChatCallbacks"))
             StorageService.Storage.Add("ChatCallbacks", new List<Action>());
-        Action Callback = StateHasChanged;
+        Action Callback = LinkUser;
         callback = Callback;
         ((IList<Action>)StorageService.Storage["ChatCallbacks"]).Add(callback);
     }
