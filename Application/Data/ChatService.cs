@@ -29,12 +29,17 @@ namespace Application.Data
         private IList<string> CrossTopics(IList<string> first, IList<string> second)
         {
             HashSet<string> topics = new HashSet<string>(first);
+            List<string> result = new List<string>();
+            
             foreach (var element in second)
             {
-                topics.Add(element);
+                if (topics.Contains(element))
+                {
+                    result.Add(element);
+                }
             }
 
-            return topics.ToList();
+            return result;
         }
 
         private void MatchUserWithSomeone(User user, IList<string> topics, long created)
