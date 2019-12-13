@@ -8,12 +8,19 @@ namespace Application.Data
 {
     public class User
     {
+        public delegate void UserChatPairCreated();
+        public event UserChatPairCreated Notify;
         public Guid Id { get; } = Guid.NewGuid();
         public string Name { get; }
         public string Code { get; }
         
         public IList<Guid> Chats { get; }
 
+        public void Updated()
+        {
+            Notify.Invoke();
+        }
+        
         public User(string name, string password)
         {
             Name = (name == null || name != "") ? name : NameGenerator.NewUserName();
