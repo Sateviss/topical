@@ -6,3 +6,7 @@
 **/.vscode/
 /.vscode/
 /Topical.sln.DotSettings.user
+/.vs/
+/.vscode/
+/Application/app.db
+/Application/Logs/

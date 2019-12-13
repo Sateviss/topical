@@ -18,8 +18,10 @@
             </NavLink>
         </li>
     </ul>
-    @foreach (var (chatName, chatId) in Chats)
+    @foreach (var chat in Chats)
     {
+        var chatId = chat.ChatId;
+        var chatName = chat.Title;
         <ul class="nav flex-column">
             <li class="nav-item px-3">
                 <NavLink class="nav-link" href="@("/chat/" + chatId)" Match="NavLinkMatch.Prefix">
@@ -37,22 +39,34 @@
     public void Dispose() => ((IList<Action>) StorageService.Storage["ChatCallbacks"]).Remove(callback);
     private Action callback;
 
+    void Sync()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    void LinkUser()
+    {
+        User user = (User) StorageService.Storage["User"];
+        user.Notify += Sync;
+        Sync();
+    }
+    
     void AddCallback()
     {
         if (!StorageService.Storage.ContainsKey("ChatCallbacks"))
             StorageService.Storage.Add("ChatCallbacks", new List<Action>());
-        Action Callback = StateHasChanged;
+        Action Callback = LinkUser;
         callback = Callback;
         ((IList<Action>)StorageService.Storage["ChatCallbacks"]).Add(callback);
     }
 
-    IList<(string, Guid)> Chats
+    IList<Chat> Chats
     {
         get
         {
             if (!StorageService.Storage.ContainsKey("User"))
-                return new List<(string, Guid)>();
-            return ChatService.RequestChats(null);
+                return new List<Chat>();
+            return ChatService.RequestChats((User)StorageService.Storage["User"]);
         }
     }
 

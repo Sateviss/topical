@@ -1,20 +1,27 @@
 @page "/chat/{Id:guid}"
+@using System.Security.Authentication
+@using System.Security.Cryptography
+@using System.Text
 @using Application.Data
+@using Application.Util
 @using Microsoft.AspNetCore.Components
 @inject SessionStorageService StorageService
 @inject ChatService ChatService
-@implements IDisposable
 @inject IJSRuntime JsRuntime
 
-<h1>Welcome to <b>@ChatService.GetChat(Id).Title</b></h1>
+<h1>Welcome to <b>@ChatObject.Title</b></h1>
 <div class="d-flex flex-column bd-highlight mb-3" style="height: calc(100vh - 150px);">
     <div class="p-2 flex-grow-1 bd-highlight overflow-auto" id="scroller">
         @foreach (var message in ChatObject.Messages)
         {
             <div>
                 <div class="d-flex bd-highlight">
-                    <div class="p-1 m-0 bd-highlight flex-column text-right">
-                        @if (message.sender.Code != "") {
+                    <div class="p-1 m-0 bd-highlight flex-column text-right" style="color: hsl(@UserUtil.UserToHue(message.sender), 80%, 40%)">
+                        @if (message.sender.LoggedIn)
+                        {
+                            <b>@message.sender.Name </b><i class="fas fa-user-check" title="User logged in!"></i><b>:</b>
+                        }
+                        else if (message.sender.Code != "") {
                             <b>@message.sender.Name</b><i class="text-muted small">#@message.sender.Code:</i>
                         } else {
                             <b>@message.sender.Name:</b>
@@ -40,7 +47,7 @@
                     <span class="oi oi-arrow-right" aria-hidden="true"></span>
                 </button>
         </div>
-    </div>
+    </div> 
 </div>
 @code {
 
@@ -48,30 +55,38 @@
     public Guid Id { get; set; }
 
     private Data.Chat _chat;
-    public Data.Chat ChatObject => _chat ??= ChatService.GetChat(Id);
-    public string Message;
-    
-    protected override async Task OnInitializedAsync()
+    public Data.Chat ChatObject
     {
-        ChatObject.NewMessage += HandleNewMessage;
+        get
+        {
+            var new_chat = ChatService.GetChat((User) StorageService.Storage["User"], Id);
+            if (!StorageService.Storage.ContainsKey("User") || new_chat == null)
+                throw new AuthenticationException();
+            if (new_chat != _chat)
+            {
+                if (_chat != null)
+                {
+                    _chat.NewMessage -= HandleNewMessage;
+                }
+                new_chat.NewMessage += HandleNewMessage;
+                _chat = new_chat;
+            }
+            return _chat;
+        }
     }
-    
+
+    public string Message;
+
     protected override void OnAfterRender(bool firstRender)
     {
         JsRuntime.InvokeVoidAsync("scrollIntoView");
-    }
-    
-    public void Dispose()
-    {
-        ChatObject.NewMessage -= HandleNewMessage;
     }
 
     private void HandleNewMessage(object sender, EventArgs eventArgs)
     {
         InvokeAsync(StateHasChanged).Wait();
     }
-
-
+    
     void SendMessage()
     {
         StateHasChanged();

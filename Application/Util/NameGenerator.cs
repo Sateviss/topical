@@ -11,12 +11,17 @@ namespace Application.Util
         
         public static string NewUserName()
         {
-            return _namePrefixes[_random.Next(_namePrefixes.Length)] + _random.Next(999, 10000);
+            return _namePrefixes[_random.Next(_namePrefixes.Length)] + NewSalt();
         }
 
         public static string NewChatTitle()
         {
-            return _chatPrefixes[_random.Next(_chatPrefixes.Length)] + _random.Next(999, 10000);
+            return _chatPrefixes[_random.Next(_chatPrefixes.Length)] + NewSalt();
+        }
+
+        public static string NewSalt()
+        {
+            return _random.Next(999, 10000).ToString();
         }
     }
 }
