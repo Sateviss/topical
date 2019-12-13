@@ -7,7 +7,6 @@
 @using Microsoft.AspNetCore.Components
 @inject SessionStorageService StorageService
 @inject ChatService ChatService
-@implements IDisposable
 @inject IJSRuntime JsRuntime
 
 <h1>Welcome to <b>@ChatObject.Title</b></h1>
@@ -60,11 +59,17 @@
     {
         get
         {
-            if (_chat == null)
+            var new_chat = ChatService.GetChat((User) StorageService.Storage["User"], Id);
+            if (!StorageService.Storage.ContainsKey("User") || new_chat == null)
+                throw new AuthenticationException();
+            if (new_chat != _chat)
             {
-                _chat = ChatService.GetChat((User) StorageService.Storage["User"], Id);
-                if (!StorageService.Storage.ContainsKey("User") || _chat == null)
-                    throw new AuthenticationException();
+                if (_chat != null)
+                {
+                    _chat.NewMessage -= HandleNewMessage;
+                }
+                new_chat.NewMessage += HandleNewMessage;
+                _chat = new_chat;
             }
             return _chat;
         }
@@ -72,27 +77,16 @@
 
     public string Message;
 
-    protected override async Task OnInitializedAsync()
-    {
-        ChatObject.NewMessage += HandleNewMessage;
-    }
-    
     protected override void OnAfterRender(bool firstRender)
     {
         JsRuntime.InvokeVoidAsync("scrollIntoView");
-    }
-    
-    public void Dispose()
-    {
-        ChatObject.NewMessage -= HandleNewMessage;
     }
 
     private void HandleNewMessage(object sender, EventArgs eventArgs)
     {
         InvokeAsync(StateHasChanged).Wait();
     }
-
-
+    
     void SendMessage()
     {
         StateHasChanged();
