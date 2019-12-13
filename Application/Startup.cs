@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -10,6 +11,7 @@ using Application.Data;
 using EmailSender = Application.Util.EmailSender;
 using Microsoft.Extensions.Logging;
 using Application.Areas.Identity;
+using Application.Util;
 using IEmailSender = Microsoft.AspNetCore.Identity.UI.Services.IEmailSender;
 
 namespace Application
@@ -30,14 +32,12 @@ namespace Application
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<ChatService>();
-//            services.AddTransient<IEmailSender>(provider => 
-//                new EmailSender(Configuration["EmailHost"], Configuration["EmailLogin"], Configuration["EmailPassword"])
-//            );
+            services.AddTransient<IEmailSender>(provider => 
+                new EmailSender(Configuration["EmailHost"], Configuration["EmailLogin"], Configuration["EmailPassword"])
+            );
             services.AddScoped<SessionStorageService>();
             services
                 .AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>
@@ -54,6 +54,22 @@ namespace Application
                     options.ClientId = Configuration["Authentication:Vkontakte:ClientId"];
                     options.ClientSecret = Configuration["Authentication:Vkontakte:ClientSecret"];
                 });
+            services.Configure<DataProtectionTokenProviderOptions>(o =>
+               o.TokenLifespan = TimeSpan.FromHours(3));
+        services.AddDefaultIdentity<IdentityUser>(config =>
+            {
+                config.SignIn.RequireConfirmedEmail = true;
+                config.Tokens.ProviderMap.Add("CustomEmailConfirmation",
+                    new TokenProviderDescriptor(
+                        typeof(CustomEmailConfirmationTokenProvider<IdentityUser>)));
+                config.Tokens.EmailConfirmationTokenProvider = "CustomEmailConfirmation";
+              }).AddEntityFrameworkStores<ApplicationDbContext>();
+        
+            services.AddTransient<CustomEmailConfirmationTokenProvider<IdentityUser>>();
+            services.ConfigureApplicationCookie(o => {
+                o.ExpireTimeSpan = TimeSpan.FromDays(5);
+                o.SlidingExpiration = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

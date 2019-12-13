@@ -1,13 +1,38 @@
-﻿using System.Net.Mail;
+﻿using System;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using AspNetCore.Email;
 using MailKit.Net.Smtp;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MimeKit;
 using IEmailSender = Microsoft.AspNetCore.Identity.UI.Services.IEmailSender;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 namespace Application.Util
 {
+    public class CustomEmailConfirmationTokenProvider<TUser>
+                                           : DataProtectorTokenProvider<TUser> where TUser : class
+    {
+        public CustomEmailConfirmationTokenProvider(IDataProtectionProvider dataProtectionProvider,
+            IOptions<EmailConfirmationTokenProviderOptions> options,
+            ILogger<DataProtectorTokenProvider<TUser>> logger)
+                                              : base(dataProtectionProvider, options, logger)
+        {
+    
+        }
+    }
+    public class EmailConfirmationTokenProviderOptions : DataProtectionTokenProviderOptions
+    {
+        public EmailConfirmationTokenProviderOptions()
+        {
+            Name = "EmailDataProtectorTokenProvider";
+            TokenLifespan = TimeSpan.FromHours(4);
+        }
+    }
+
     public class EmailSender : IEmailSender
     {
         private string _host;
@@ -35,7 +60,7 @@ namespace Application.Util
              
             using (var client = new SmtpClient())
             {
-                await client.ConnectAsync(_host, 587, true);
+                await client.ConnectAsync(_host, 465, true);
                 await client.AuthenticateAsync(_login, _password);
                 await client.SendAsync(emailMessage);
  
