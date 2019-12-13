@@ -110,7 +110,7 @@ namespace Application.Data
 
         public Chat GetChat(User sender, Guid chatId)
         {
-            return _chats[chatId].Users.Contains(sender) ? _chats[chatId] : null;
+            return _chats[chatId].Users.Any(u => u.Id == sender.Id) ? _chats[chatId] : null;
         }
 
         public ChatService()
