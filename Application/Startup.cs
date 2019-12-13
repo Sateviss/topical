@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Application.Data;
 using Application.Areas.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace Application
 {
@@ -44,6 +45,18 @@ namespace Application
             services
                 .AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>
                 >();
+            services.AddAuthentication()
+                .AddMicrosoftAccount(options =>
+                {
+                    options.ClientId = Configuration["Authentication:Microsoft:ClientId"];
+                    options.ClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
+                })
+                .AddVkontakte(
+                options =>
+                {
+                    options.ClientId = Configuration["Authentication:Vkontakte:ClientId"];
+                    options.ClientSecret = Configuration["Authentication:Vkontakte:ClientSecret"];
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

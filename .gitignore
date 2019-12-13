@@ -4,6 +4,8 @@
 **/.idea/
 **/TestResults/
 **/.vscode/
-**/*.db
 /.vscode/
 /Topical.sln.DotSettings.user
+/.vs/
+/.vscode/
+/Application/app.db
