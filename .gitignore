@@ -9,3 +9,4 @@
 /.vs/
 /.vscode/
 /Application/app.db
+/Application/Logs/

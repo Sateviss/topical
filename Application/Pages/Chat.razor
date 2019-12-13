@@ -9,7 +9,7 @@
 @implements IDisposable
 @inject IJSRuntime JsRuntime
 
-<h1>Welcome to <b>@ChatService.GetChat(Id).Title</b></h1>
+<h1>Welcome to <b>@ChatObject.Title</b></h1>
 <div class="d-flex flex-column bd-highlight mb-3" style="height: calc(100vh - 150px);">
     <div class="p-2 flex-grow-1 bd-highlight overflow-auto" id="scroller">
         @foreach (var message in ChatObject.Messages)
@@ -55,7 +55,7 @@
     public Guid Id { get; set; }
 
     private Data.Chat _chat;
-    public Data.Chat ChatObject => _chat ??= ChatService.GetChat(Id);
+    public Data.Chat ChatObject => _chat ??= ChatService.GetChat((User)StorageService.Storage["User"], Id);
     public string Message;
 
     protected override async Task OnInitializedAsync()

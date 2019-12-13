@@ -99,7 +99,6 @@ namespace Application.Data
             {
                 _userChats.Add(sender.Id, new List<Chat>());
             }
-
             await Task.Run(() => MatchUserWithSomeone(sender, topics, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
         }
 
@@ -109,7 +108,10 @@ namespace Application.Data
             return _userChats[sender.Id];
         }
 
-        public Chat GetChat(Guid chatId) => _chats[chatId];
+        public Chat GetChat(User sender, Guid chatId)
+        {
+            return _chats[chatId].Users.Contains(sender) ? _chats[chatId] : null;
+        }
 
         public ChatService()
         {

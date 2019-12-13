@@ -14,6 +14,7 @@ namespace Application.Data
         public Chat(IEnumerable<string> topics)
         {
             Topics = new HashSet<string>(topics);
+            Title = String.Join('+', topics)+" "+Util.NameGenerator.NewSalt();
         }
 
         public HashSet<string> Topics { get; }
