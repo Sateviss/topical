@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using Application.Data
 @inject SessionStorageService StorageService
+@inject IAuthorizationService AuthorizationService
 
 @if (User == null)
 {
@@ -13,12 +14,12 @@ else
 <div>
   <div class="form-group">
     <label for="username">Username</label>
-    <input class="form-control" id="username" aria-describedby="usernameHelp" @bind="Username" style="max-width: 700px"/>
+    <input class="form-control" id="username" aria-describedby="usernameHelp" @bind="Username" style="max-width: 700px" disabled="@(User.LoggedIn)"/>
     <small id="usernameHelp" class="form-text text-muted">Leave empty to generate a random username</small>
   </div>
   <div class="form-group">
     <label for="passcode">Passcode</label>
-    <input type="password" class="form-control" id="passcode" aria-describedby="passcodeHelp" @bind="Passcode" style="max-width: 700px"/>
+    <input type="password" class="form-control" id="passcode" aria-describedby="passcodeHelp" @bind="Passcode" style="max-width: 700px" disabled="@(User.LoggedIn)"/>
     <small id="passcodeHelp" class="form-text text-muted">
         This will be mashed up with your username and appear as a unique identifier along with your username<br/>
         Leave empty to not have one
@@ -32,12 +33,31 @@ else
 {
     public string Username { get; set; } = "";
     public string Passcode { get; set; } = "";
+    
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    public User User => StorageService.Storage.TryGetValue("User", out var value) ? (User)value : null;
+    public User User
+    {
+        get
+        {
+            var user = authenticationStateTask.Result.User;
 
+            if (user.Identity.IsAuthenticated)
+            {
+                return new User(user.Identity.Name, "", true);
+            }
+            return StorageService.Storage.TryGetValue("User", out var value) ? (User) value : null;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+    
     void Queue()
     {
-        var user = new User(Username, Passcode);
+        var user = (User != null && User.LoggedIn) ? User : new User(Username, Passcode, false);
         if (StorageService.Storage.ContainsKey("User"))
         {
             StorageService.Storage.Remove("User");

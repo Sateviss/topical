@@ -17,7 +17,11 @@
             <div>
                 <div class="d-flex bd-highlight">
                     <div class="p-1 m-0 bd-highlight flex-column text-right" style="color: hsl(@UserUtil.UserToHue(message.sender), 80%, 40%)">
-                        @if (message.sender.Code != "") {
+                        @if (message.sender.LoggedIn)
+                        {
+                            <b>@message.sender.Name </b><i class="fas fa-user-check" title="User logged in!"></i><b>:</b>
+                        }
+                        else if (message.sender.Code != "") {
                             <b>@message.sender.Name</b><i class="text-muted small">#@message.sender.Code:</i>
                         } else {
                             <b>@message.sender.Name:</b>
