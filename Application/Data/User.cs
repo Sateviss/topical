@@ -18,14 +18,13 @@ namespace Application.Data
         public IList<Guid> Chats { get; }
         
         public bool LoggedIn { get; } 
-        public User(string name, string password, bool loggedIn)
 
         public void Updated()
         {
             Notify.Invoke();
         }
         
-        public User(string name, string password)
+        public User(string name, string password, bool loggedIn)
         {
             LoggedIn = loggedIn;
             if (loggedIn)
