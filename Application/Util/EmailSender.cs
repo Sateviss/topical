@@ -1,7 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Mail;
+using System.Threading.Tasks;
 using AspNetCore.Email;
 using MailKit.Net.Smtp;
 using MimeKit;
+using IEmailSender = Microsoft.AspNetCore.Identity.UI.Services.IEmailSender;
+using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 namespace Application.Util
 {
@@ -18,7 +21,7 @@ namespace Application.Util
             _password = password;
         }
 
-        public async Task<bool> SendEmailAsync(string recipient, string subject, string body)
+        public async Task SendEmailAsync(string recipient, string subject, string body)
         {
             var emailMessage = new MimeMessage();
  
@@ -32,16 +35,15 @@ namespace Application.Util
              
             using (var client = new SmtpClient())
             {
-                await client.ConnectAsync(_host, 25, false);
+                await client.ConnectAsync(_host, 587, true);
                 await client.AuthenticateAsync(_login, _password);
                 await client.SendAsync(emailMessage);
  
                 await client.DisconnectAsync(true);
             }
-            return true;
         }
 
-        public Task<bool> SendEmailAsync(EmailDto input)
+        public Task SendEmailAsync(EmailDto input)
         {
             return SendEmailAsync(input.Recipients, input.Subject, input.Body);
         }
