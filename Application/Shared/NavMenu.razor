@@ -41,7 +41,7 @@
     {
         if (!StorageService.Storage.ContainsKey("ChatCallbacks"))
             StorageService.Storage.Add("ChatCallbacks", new List<Action>());
-        Action Callback = StateHasChanged;
+        Action Callback = () => InvokeAsync(StateHasChanged).Wait();
         callback = Callback;
         ((IList<Action>)StorageService.Storage["ChatCallbacks"]).Add(callback);
     }
