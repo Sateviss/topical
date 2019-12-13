@@ -14,6 +14,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Application.Data;
+using AspNetCore.Email;
+using EmailSender = Application.Util.EmailSender;
 using Microsoft.Extensions.Logging;
 using Application.Areas.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -41,7 +43,7 @@ namespace Application
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<ChatService>();
-            
+            services.AddSingleton<IEmailSender>(new EmailSender(Configuration["EmailHost"], Configuration["EmailLogin"], Configuration["EmailPassword"]));
             services.AddScoped<SessionStorageService>();
             services
                 .AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>
