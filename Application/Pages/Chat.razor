@@ -60,9 +60,12 @@
     {
         get
         {
-            _chat = ChatService.GetChat((User) StorageService.Storage["User"], Id);
-            if (!StorageService.Storage.ContainsKey("User") || _chat == null)
-                throw new AuthenticationException();
+            if (_chat == null)
+            {
+                _chat = ChatService.GetChat((User) StorageService.Storage["User"], Id);
+                if (!StorageService.Storage.ContainsKey("User") || _chat == null)
+                    throw new AuthenticationException();
+            }
             return _chat;
         }
     }
