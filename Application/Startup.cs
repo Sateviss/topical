@@ -47,11 +47,11 @@ namespace Application
                 .AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>
                 >();
             services.AddAuthentication()
-                .AddMicrosoftAccount(options =>
-                {
-                    options.ClientId = Configuration["Authentication:Microsoft:ClientId"];
-                    options.ClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
-                })
+//                 .AddMicrosoftAccount(options =>
+//                 {
+//                     options.ClientId = Configuration["Authentication:Microsoft:ClientId"];
+//                     options.ClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
+//                 })
                 .AddVkontakte(
                 options =>
                 {
