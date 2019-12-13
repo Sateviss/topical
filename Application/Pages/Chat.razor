@@ -1,5 +1,8 @@
 @page "/chat/{Id:guid}"
+@using System.Security.Cryptography
+@using System.Text
 @using Application.Data
+@using Application.Util
 @using Microsoft.AspNetCore.Components
 @inject SessionStorageService StorageService
 @inject ChatService ChatService
@@ -13,8 +16,12 @@
         {
             <div>
                 <div class="d-flex bd-highlight">
-                    <div class="p-1 m-0 bd-highlight flex-column text-right">
-                        @if (message.sender.Code != "") {
+                    <div class="p-1 m-0 bd-highlight flex-column text-right" style="color: hsl(@UserUtil.UserToHue(message.sender), 80%, 40%)">
+                        @if (message.sender.LoggedIn)
+                        {
+                            <b>@message.sender.Name </b><i class="fas fa-user-check" title="User logged in!"></i><b>:</b>
+                        }
+                        else if (message.sender.Code != "") {
                             <b>@message.sender.Name</b><i class="text-muted small">#@message.sender.Code:</i>
                         } else {
                             <b>@message.sender.Name:</b>
@@ -40,7 +47,7 @@
                     <span class="oi oi-arrow-right" aria-hidden="true"></span>
                 </button>
         </div>
-    </div>
+    </div> 
 </div>
 @code {
 
@@ -50,7 +57,7 @@
     private Data.Chat _chat;
     public Data.Chat ChatObject => _chat ??= ChatService.GetChat(Id);
     public string Message;
-    
+
     protected override async Task OnInitializedAsync()
     {
         ChatObject.NewMessage += HandleNewMessage;
