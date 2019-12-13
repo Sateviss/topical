@@ -1,4 +1,4 @@
-# [WIP] A simple chat webapp made in ASP.NET
+# [WIP] A simple chat webapp made in ASP.NET Core
 
 ![](https://github.com/sateviss/topical/workflows/ASP.NET%20Core%20CI/badge.svg)
 
