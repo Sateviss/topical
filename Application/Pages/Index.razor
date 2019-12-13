@@ -2,6 +2,7 @@
 @using Application.Data
 @inject SessionStorageService StorageService
 @inject IAuthorizationService AuthorizationService
+@inject ChatService ChatService;
 
 @if (User == null)
 {
@@ -12,6 +13,11 @@ else
     <h1>Welcome to <b>Topical</b>, @User.Name</h1>
 }
 <div>
+<div class="form-group">
+    <label for="topics">Topics</label>
+    <input class="form-control" id="topics" aria-describedby="topicsHelp" @bind="Topics" style="max-width: 700px"/>
+    <small id="topicsHelp" class="form-text text-muted">Just put topics you wanna talk here!</small>
+  </div>
   <div class="form-group">
     <label for="username">Username</label>
     <input class="form-control" id="username" aria-describedby="usernameHelp" @bind="Username" style="max-width: 700px" disabled="@(User.LoggedIn)"/>
@@ -31,6 +37,7 @@ else
 
 @code
 {
+    public string Topics { get; set; } = "random";
     public string Username { get; set; } = "";
     public string Passcode { get; set; } = "";
     
@@ -63,6 +70,8 @@ else
             StorageService.Storage.Remove("User");
         }
         StorageService.Storage.Add("User", user);
+        ChatService.AnnounceTopics(user, Topics.Split(" "));
+        
         foreach (var action in (IList<Action>)StorageService.Storage["ChatCallbacks"])
         {
             action();

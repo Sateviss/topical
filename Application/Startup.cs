@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Application.Data;
+using Microsoft.Extensions.Logging;
 using Application.Areas.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 
@@ -60,8 +61,9 @@ namespace Application
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            loggerFactory.AddFile("Logs/topics-{Date}.txt");
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
