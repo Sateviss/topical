@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Application.Data;
+using AspNetCore.Email;
+using EmailSender = Application.Util.EmailSender;
 
 namespace Application
 {
@@ -29,7 +31,7 @@ namespace Application
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<ChatService>();
-            
+            services.AddSingleton<IEmailSender>(new EmailSender(Configuration["EmailHost"], Configuration["EmailLogin"], Configuration["EmailPassword"]));
             services.AddScoped<SessionStorageService>();
         }
 
